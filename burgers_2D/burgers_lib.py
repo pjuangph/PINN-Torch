@@ -105,7 +105,7 @@ def plot_history_2D(filename:str,u_history:List[np.ndarray],v_history:List[np.nd
     X, Y = np.meshgrid(x, y)
     u = u_history[0]
     v = u_history[0]
-    fig = plt.figure(figsize=(15,18), dpi=300)
+    fig = plt.figure(figsize=(15,5), dpi=300)
     ax1 = fig.add_subplot(121,projection="3d") # Plot of u
     ax2 = fig.add_subplot(122,projection="3d") # Plot of u
     
@@ -123,11 +123,14 @@ def plot_history_2D(filename:str,u_history:List[np.ndarray],v_history:List[np.nd
         i = int(i/divisor)
         u = u_history[i]
         v = u_history[i]
-        data1.set_data(X,Y,u)
-        data2.set_data(X,Y,v)
-        return (data1,data2)
+        ax1.plot_surface(X, Y, u, cmap=cm.jet)
+        ax2.plot_surface(X, Y, v, cmap=cm.jet)
+        # data1.set_data(X,Y,u)
+        # data2.set_data(X,Y,v)
+        # return (data1,data2)
+    
 
     anim = animation.FuncAnimation(fig, animate, init_func=None,
                                 frames=num_frames, interval=10, blit=True)
-    anim.save(filename, writer='imagemagick', fps=60)
+    anim.save(filename, writer=animation.ImageMagickFileWriter())
 

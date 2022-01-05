@@ -20,10 +20,10 @@ def create_domain(nx:int=80, ny:int=80) -> Tuple[np.ndarray,np.ndarray,np.ndarra
             **v** (np.ndarray): matrix describing y-velocity field in i,j space
     """
 
-    x = np.linspace(0,1,nx)
-    y = np.linspace(0,1,ny)
-    u = np.zeros(shape=(nx,ny))
-    v = np.zeros(shape=(nx,ny))
+    x = np.linspace(0,2,nx)
+    y = np.linspace(0,2,ny)
+    u = np.ones(shape=(ny,nx))
+    v = np.ones(shape=(ny,ny))
 
     return x,y,u,v
 
@@ -44,12 +44,14 @@ def initialize(u:np.ndarray,v:np.ndarray,u_value:float,v_value:float,u_bounds:Li
             **u** (np.ndarray): Initialized velocity field in x direction
             **v** (np.ndarray): Initialized velocity field in y direction 
     """ 
-    i = np.array(u_bounds[0],dtype=int)*u.shape[0]
-    j = np.array(u_bounds[1],dtype=int)*u.shape[1]
+    i = np.array(u_bounds[0])*u.shape[0]
+    j = np.array(u_bounds[1])*u.shape[1]
+    i = i.astype(int); j = j.astype(int)
     u[i[0]:i[1], j[0]:j[1]] = u_value
 
-    i = np.array(v_bounds[0],dtype=int)*v.shape[0]
-    j = np.array(v_bounds[1],dtype=int)*v.shape[1]
+    i = np.array(v_bounds[0])*u.shape[0]
+    j = np.array(v_bounds[1])*u.shape[1]
+    i = i.astype(int); j = j.astype(int)
     v[i[0]:i[1], j[0]:j[1]] = v_value
 
     return u,v
@@ -67,19 +69,19 @@ def plot_domain_2D(prefix:str,x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarra
     """
     X, Y = np.meshgrid(x, y)
 
-    fig = plt.figure(figsize=(15,18), dpi=300)
-    ax1 = fig.add_subplot(121) # Plot of u
-    ax1 = ax1.set_gca(projection='3d')
+    fig = plt.figure(figsize=(30,10), dpi=300)
+    ax1 = fig.add_subplot(121,projection="3d") # Plot of u
     ax1.plot_surface(X, Y, u, cmap=cm.jet)
     ax1.set_xlabel('x direction')
     ax1.set_ylabel('y direction')
+    ax1.set_zlabel('Velocity')
     ax1.set_title('U - velocity')
     
-    ax2 = fig.add_subplot(122) # Plot of v``
-    ax2 = ax2.set_gca(projection='3d')
+    ax2 = fig.add_subplot(122,projection="3d") # Plot of v``    
     ax2.plot_surface(X, Y, v, cmap=cm.jet)
     ax2.set_xlabel('x direction')
     ax2.set_ylabel('y direction')
+    ax2.set_zlabel('Velocity')
     ax2.set_title('V - velocity')
 
     plt.savefig(f'{prefix}_burgers_u_v.png')

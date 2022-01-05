@@ -1,7 +1,7 @@
 import numpy as np
 import copy 
 
-def burgers_timestep(x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarray,nt:int,dt:float,nu:float=0.1):
+def burgers_timestep(x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarray,nt:int,dt:float=0.001,nu:float=0.1):
     """Solving burgers equation using finite difference with euler time step (1st order approximation) 
 
     Args:
@@ -26,31 +26,29 @@ def burgers_timestep(x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarray,nt:int,
 
     u_history = list()
     v_history = list() 
-    u_history.append(u)
-    v_history.append(v)
-
+    u_history.append(copy.deepcopy(u)) # set equal to initial value
+    v_history.append(copy.deepcopy(v))
     for n in range(nt):
-        u_future = u.copy()
-        v_future = v.copy()
+        un = u.copy()   # previous value
+        vn = v.copy()
         for i in range(1,len(x)-1):
             for j in range(1,len(y)-1):
                 # Uses backward difference in space to solve first order derivative
                 # Central differencing for second order derivative 
-                u_future[i,j] = (u[i, j] -(u[i, j] * dt / dx * (u[i, j] - u[i-1, j])) -v[i, j] * dt / dy * (u[i, j] - u[i, j-1])) + (nu*dt/(dx**2))*(u[i+1,j]-2*u[i,j]+u[i-1,j])+(nu*dt/(dx**2))*(u[i,j-1]-2*u[i,j]+u[i,j+1])
-                
-                v_future[i,j] = (v[i, j] -(u[i, j] * dt / dx * (v[i, j] - v[i-1, j]))-v[i, j] * dt / dy * (v[i, j] - v[i, j-1])) + (nu*dt/(dx**2))*(v[i+1,j]-2*v[i,j]+v[i-1,j])+(nu*dt/(dx**2))*(v[i,j-1]-2*v[i,j]+v[i,j+1])
+                u[i,j] = (un[i, j] -(un[i, j] * dt / dx * (un[i, j] - un[i-1, j])) -vn[i, j] * dt / dy * (un[i, j] - un[i, j-1])) + (nu*dt/(dx**2))*(un[i+1,j]-2*un[i,j]+un[i-1,j])+(nu*dt/(dx**2))*(un[i,j-1]-2*un[i,j]+un[i,j+1])
+                v[i,j] = (vn[i, j] -(un[i, j] * dt / dx * (vn[i, j] - vn[i-1, j]))-vn[i, j] * dt / dy * (vn[i, j] - vn[i, j-1])) + (nu*dt/(dx**2))*(vn[i+1,j]-2*vn[i,j]+vn[i-1,j])+(nu*dt/(dx**2))*(vn[i,j-1]-2*vn[i,j]+vn[i,j+1])
         
-        u_future[:,0] = 0       # At all i values when j = 0
-        u_future[:,-1] = 0      # At all i values when j = jmax
-        u_future[0,:] = 0       # At all j values and i = 0
-        u_future[-1,:] = 0      # At all j values and i = imax
+        u[:,0] = 1       # At all i values when j = 0
+        u[:,-1] = 1      # At all i values when j = jmax
+        u[0,:] = 1       # At all j values and i = 0
+        u[-1,:] = 1     # At all j values and i = imax
 
-        v_future[:,0] = 0
-        v_future[:,-1] = 0
-        v_future[:,0] = 0
-        v_future[:,-1] = 0
+        v[:,0] = 1
+        v[:,-1] = 1
+        v[0,:] = 1
+        v[-1,:] = 1
 
-        u_history.append(copy.deepcopy(u_future))
-        v_history.append(copy.deepcopy(u_future))
+        u_history.append(copy.deepcopy(u))
+        v_history.append(copy.deepcopy(v))
     return u_history, v_history
     

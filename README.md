@@ -9,6 +9,8 @@ Note:
 **Creating GIFs**:To save gif files you need to have imagemagick installed and added to your **path** variable
 https://imagemagick.org/script/download.php 
 
+Imagemagick does not work on windows even with legacy version. I will need to try with mac or linux
+
 ---
 
 All of these examples are presented on a 2D Domain of x and y. The importance of the Physics based neural network is that it doesn't require a mesh in order to obtain a solution; all you need is enough samples within your domain.

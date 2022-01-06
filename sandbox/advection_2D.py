@@ -1,6 +1,6 @@
 # imports
 import sys
-sys.path.insert(0,'../')
+sys.path.insert(0,'../../nangs')
 import numpy as np 
 import matplotlib.pyplot as plt 
 import nangs
@@ -56,6 +56,7 @@ from nangs import Dirichlet, Periodic
 
 n_samples = 1000
 # This is initial condition because t = 0
+# Note: When you are solving the Neural Network to predict the PDE, you are predicting the value for all times
 initial_condition = Dirichlet(
     RandomSampler({'x': [0., 1.], 'y': [0., 1.], 't': 0.}, device=device, n_samples=n_samples), 
     lambda inputs: {'p' : torch.sin(2.*np.pi*inputs['x'])*torch.sin(2.*np.pi*inputs['y'])},

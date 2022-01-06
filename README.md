@@ -1,9 +1,9 @@
-# PINN-Torch Physics informed neural network using pytorch
+## PINN-Torch Physics informed neural network using pytorch
 
 The intent of this repository is to show how to solve example and test PDEs using neural networks. The goal is to provide excellent documentation for others to learn from and also create interactive tutorials that spin up on google colab. 
 
 ---
-Note: 
+### Note: 
 
 **Displaying Math**: This repository contains a lot of math equations. Github currently does not display latex equations. If you want to see the equations, I reccomend installing xhub google chrome: https://github.com/nschloe/xhub 
 
@@ -13,6 +13,8 @@ https://imagemagick.org/script/download.php
 Imagemagick does not work on windows even with legacy version. I will need to try with mac or linux
 
 ---
+
+## List of Examples 
 
 All of these examples are presented on a 2D Domain of x and y. The importance of the Physics based neural network is that it doesn't require a mesh in order to obtain a solution; all you need is enough samples within your domain.
 

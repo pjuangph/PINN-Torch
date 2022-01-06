@@ -8,7 +8,7 @@ import json
 
 with open('settings.json','r') as f:
     settings = json.load(f)
-
+    settings = settings['Burgers2D']
     x,y,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
     u_bounds = settings['u_bounds']
     v_bounds = settings['v_bounds']

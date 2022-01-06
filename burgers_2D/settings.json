@@ -9,8 +9,8 @@
             "j_percent":[0.2,0.3]
         },
         "v_bounds":{
-            "i_bounds_percent":[0.2,0.3],
-            "j_bounds_percent":[0.1,0.3]
+            "i_percent":[0.2,0.3],
+            "j_percent":[0.1,0.3]
         },
         "nx":41,
         "ny":41,

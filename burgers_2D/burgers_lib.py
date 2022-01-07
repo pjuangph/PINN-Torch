@@ -113,11 +113,15 @@ def plot_history_2D(filename:str,u_history:List[np.ndarray],v_history:List[np.nd
     ax1.set_xlabel('x direction')
     ax1.set_ylabel('y direction')
     ax1.set_title('U - velocity')
-    
+    ax1.set_xlim(min(x),max(x))
+    ax1.set_ylim(min(y),max(y)) 
+
     data2 = ax2.plot_surface(X, Y, v, cmap=cm.jet)
     ax2.set_xlabel('x direction')
     ax2.set_ylabel('y direction')
     ax2.set_title('V - velocity')
+    ax2.set_xlim(min(x),max(x))
+    ax2.set_ylim(min(y),max(y)) 
 
     def animate(i):
         i = int(i/divisor)
@@ -132,5 +136,6 @@ def plot_history_2D(filename:str,u_history:List[np.ndarray],v_history:List[np.nd
 
     anim = animation.FuncAnimation(fig, animate, init_func=None,
                                 frames=num_frames, interval=10, blit=True)
-    anim.save(filename, writer=animation.ImageMagickFileWriter())
+    # from IPython.display import HTML
 
+    # HTML(anim.to_html5_video())

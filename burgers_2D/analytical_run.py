@@ -16,5 +16,6 @@ with open('settings.json','r') as f:
                 [u_bounds['i_percent'],u_bounds['j_percent']],
                 [v_bounds['i_percent'],v_bounds['j_percent']])
     u_history, v_history = burgers_timestep(x,y,u,v,nt=500,dt=0.001,nu=0.1)
-    # plot_domain_2D('burgers_2D',x,y,u_history[-1],v_history[-1])
+    # Plot results at a certain point in time
+    plot_domain_2D('burgers_2D',x,y,u_history[-1],v_history[-1])
     plot_history_2D('burgers_2D.gif',u_history,v_history,x,y)

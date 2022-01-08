@@ -37,8 +37,8 @@ def initialize(u:np.ndarray,v:np.ndarray,u_max:float,v_max:float,u_min:float,v_m
         v_max (float): max value to initialize v with inside v_bounds
         u_min (float): min value to initialize u with outside u_bounds
         v_min (float): min value to initialize v with outside v_bounds
-        u_bounds (List[Tuple[float,float]]): Defines the percentage of the domain to set to u_max for example u_bounds = [(0.1,0.9),(0.2,0.2)] equates to 10% to 90% of the i direction and 20% to 80% in j direction to set value of u to be u_max
-        v_bounds (List[Tuple[float,float]]): Defines the percentage of the domain to set to u_max for example v_bounds = [(0.1,0.9),(0.2,0.2)] equates to 10% to 90% of the i direction and 20% to 80% in j direction to set value of u to be v_max
+        u_bounds (List[Tuple[float,float]]): Defines the percentage of the domain to set to u_max for example u_bounds = [(0.1,0.9),(0.2,0.2)] equates to 10% to 90% of the x direction and 20% to 80% in j direction to set value of u to be u_max
+        v_bounds (List[Tuple[float,float]]): Defines the percentage of the domain to set to u_max for example v_bounds = [(0.1,0.9),(0.2,0.2)] equates to 10% to 90% of the y direction and 20% to 80% in j direction to set value of u to be v_max
 
     Returns:
         (tuple): containing:

@@ -17,12 +17,12 @@
             "min":1
         },        
         "u_bounds":{
-            "i_percent":[0.2,0.3],
-            "j_percent":[0.2,0.3]
+            "x_percent":[0.2,0.5],
+            "y_percent":[0.2,0.5]
         },
         "v_bounds":{
-            "i_percent":[0.2,0.3],
-            "j_percent":[0.1,0.3]
+            "x_percent":[0.2,0.3],
+            "y_percent":[0.1,0.3]
         },
         "nx":41,
         "ny":41,

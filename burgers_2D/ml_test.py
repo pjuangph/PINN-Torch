@@ -2,8 +2,9 @@
     ml_test.py
     This file reads the simulation model and predicts the value of u and v at random x and y points for a given time and compares it to the analytical solution
 '''
-import torch
-from ml.MultiLayerLinear import MultiLayerLinear
+import torch, sys
+sys.path.insert(0,'../../nangs')
+from nangs import Dirichlet, MLP 
 import os.path as osp 
 import json 
 from burgers_lib import initialize, create_domain, plot_domain_2D, plot_history_2D
@@ -53,23 +54,23 @@ if __name__=="__main__":
         x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
         X,Y = np.meshgrid(x_original,y_original)
 
-    t = np.arange(0.1,settings['tmax'],100) # user will change this 
+    t = np.arange(0,settings['tmax'],100) # user will change this 
 
     if osp.exists('burgers_train.pt'):
         data = torch.load('burgers_train.pt')
-        x_scaler = data['scalers']['x_scaler']
-        y_scaler = data['scalers']['y_scaler']
-        u_scaler = data['scalers']['u_scaler']
-        v_scaler = data['scalers']['v_scaler']
-    # Normalize
-    x = x_scaler.fit_transform(X.flatten().reshape(-1,1))[:,0]
-    y = y_scaler.fit_transform(Y.flatten().reshape(-1,1))[:,0]
+    #     x_scaler = data['scalers']['x_scaler']
+    #     y_scaler = data['scalers']['y_scaler']
+    #     u_scaler = data['scalers']['u_scaler']
+    #     v_scaler = data['scalers']['v_scaler']
+    # # Normalize
+    # x = x_scaler.fit_transform(X.flatten().reshape(-1,1))[:,0]
+    # y = y_scaler.fit_transform(Y.flatten().reshape(-1,1))[:,0]
 
-    model = MultiLayerLinear(data['num_inputs'],data['num_outputs'],data['hidden_layers'])
+    x = X.flatten()
+    y = Y.flatten()
+    model = MLP(data['num_inputs'],data['num_outputs'],5,128)
     for i in range(len(t)):
         u,v = compute_results(model,x,y,t[i])
-        u = u_scaler.inverse_transform(u.reshape(-1,1))
-        v = v_scaler.inverse_transform(v.reshape(-1,1))        
 
         u = u.reshape(X.shape[0],X.shape[1])
         v = v.reshape(X.shape[0],X.shape[1])

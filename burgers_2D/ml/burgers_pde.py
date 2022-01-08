@@ -34,7 +34,6 @@ class burgers_pde(PDE):
 
         # Compute the gradients of u
         ddu_dxx = self.computeGrads(du_dx,inputs)[:,0] # du_dx is output, x is input -> computes ddu_dxx 
-
         ddu_dyy = self.computeGrads(du_dy,inputs)[:,1]
         
         # Compute the gradients of v
@@ -43,5 +42,5 @@ class burgers_pde(PDE):
 
         # Burgers PDE
         return { 
-            'u_velocity': du_dt + u*du_dx + v*du_dy - self.nu * (ddu_dxx+ ddu_dyy),
-            'v_velocity': dv_dt + u*dv_dx + v*dv_dy - self.nu * (ddv_dxx+ ddv_dyy) }
+            'u-pde': du_dt + u*du_dx + v*du_dy - self.nu * (ddu_dxx+ ddu_dyy),
+            'v-pde': dv_dt + u*dv_dx + v*dv_dy - self.nu * (ddv_dxx+ ddv_dyy) }

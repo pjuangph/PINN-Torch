@@ -80,7 +80,7 @@ def plot_domain_2D(prefix:str,x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarra
     ax1.set_ylabel('y direction')
     ax1.set_zlabel('Velocity')
     ax1.set_title('U - velocity')
-    
+    ax1.set_zlim([0,3])
 
     ax2 = fig.add_subplot(122,projection="3d") # Plot of v``    
     ax2.plot_surface(X, Y, v, cmap=cm.jet)
@@ -88,8 +88,9 @@ def plot_domain_2D(prefix:str,x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarra
     ax2.set_ylabel('y direction')
     ax2.set_zlabel('Velocity')
     ax2.set_title('V - velocity')
-
-    plt.savefig(f'{prefix}_burgers_u_v.png')
+    ax2.set_zlim([0,3])
+    plt.show()
+    # plt.savefig(f'{prefix}_burgers_u_v.png')
     
 def plot_history_2D(filename:str,u_history:List[np.ndarray],v_history:List[np.ndarray],x:np.ndarray,y:np.ndarray):
     """[summary]

@@ -59,7 +59,7 @@ with open('settings.json','r') as f:
 
 
     initial_conditions = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': [0., 2.], 't': 0.}, device=device, n_samples=10000), 
+        RandomSampler({'x': [0., 2.], 'y': [0., 2.], 't': 0.}, device=device, n_samples=1000), 
         lambda inputs: initial_conditions_func(inputs),
         name="initial-conditions"
     )
@@ -70,26 +70,26 @@ with open('settings.json','r') as f:
         Set the wall boundary condition
     """
     wall_bottom = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': 0., 't': [0., settings['tmax']]}, device=device, n_samples=5000), 
+        RandomSampler({'x': [0., 2.], 'y': 0., 't': [0., settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
         name="wall-bottom"
     )
 
     wall_top = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': 2., 't': [0., settings['tmax']]}, device=device, n_samples=5000), 
+        RandomSampler({'x': [0., 2.], 'y': 2., 't': [0., settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
         name="wall-top"
     )
 
     wall_left = Dirichlet(
-        RandomSampler({'x': 0., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=5000), 
+        RandomSampler({'x': 0., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
         name="wall-left"
     )
 
     wall_right = Dirichlet(
-        RandomSampler({'x': 2., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=5000), 
-        lambda inputs: {'u': torch.as_tensor(1*inputs['x']), 'v': torch.as_tensor(1*inputs['x'])},
+        RandomSampler({'x': 2., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
+        lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
         name="wall-right"
     )
 
@@ -100,7 +100,7 @@ with open('settings.json','r') as f:
         'x': [0.,2.],
         'y': [0.,2.],
         't': [0., settings['tmax']]
-    },device=device, n_samples=100000)
+    },device=device, n_samples=20000)
 
     pde.set_sampler(pde_sampler)
     pde.add_boco(initial_conditions)
@@ -114,9 +114,9 @@ with open('settings.json','r') as f:
     n_outputs = len(pde.outputs)
     hidden_layers = [64,64,64,64]
     n_steps = 5000
-    mlp = MLP(n_inputs,n_outputs,3,128).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
-    optimizer = torch.optim.AdamW(mlp.parameters())
-    scheduler = None # torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.2, pct_start=0.1, div_factor=10, final_div_factor=1, total_steps=n_steps)
+    mlp = MLP(n_inputs,n_outputs,5,128).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
+    optimizer = torch.optim.Adam(mlp.parameters())
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, pct_start=0.1, div_factor=2, final_div_factor=1, total_steps=n_steps)
 
     pde.compile(mlp, optimizer, scheduler)
     hist = pde.solve(n_steps)

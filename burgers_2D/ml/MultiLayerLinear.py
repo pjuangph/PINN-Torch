@@ -40,7 +40,7 @@ class MultiLayerLinear(Module):
     def forward(self,x):
         out = x
         for i in range(len(self.layers)-1):
-            out = F.relu(self.layers[i](out))        
+            out = self.layers[i](out)       
         return self.layers[-1](out) # dont activate the last laye
 
     def __str__(self):

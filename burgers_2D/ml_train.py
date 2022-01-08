@@ -109,7 +109,7 @@ with open('settings.json','r') as f:
     n_outputs = len(pde.outputs)
     hidden_layers = [64,64,64,64]
     n_steps = 5000
-    mlp = MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
+    mlp = MLP(n_inputs,n_outputs,5,100).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
     optimizer = torch.optim.AdamW(mlp.parameters())
     scheduler = None # torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.5, pct_start=0.3, div_factor=5, final_div_factor=2, total_steps=n_steps)
 

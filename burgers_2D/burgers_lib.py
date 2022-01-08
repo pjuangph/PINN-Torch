@@ -53,7 +53,7 @@ def initialize(u:np.ndarray,v:np.ndarray,u_value:float,v_value:float,u_bounds:Li
     j = np.array(v_bounds[1])*u.shape[1]
     i = i.astype(int); j = j.astype(int)
     v[i[0]:i[1], j[0]:j[1]] = v_value
-
+    
     return u,v
 
 

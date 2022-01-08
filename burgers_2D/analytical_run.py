@@ -12,7 +12,7 @@ with open('settings.json','r') as f:
     x,y,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
     u_bounds = settings['u_bounds']
     v_bounds = settings['v_bounds']
-    u,v = initialize(u,v,settings['u_max'],settings['v_max'],
+    u,v = initialize(u,v,settings['u']['max'],settings['v']['max'],
                 [u_bounds['i_percent'],u_bounds['j_percent']],
                 [v_bounds['i_percent'],v_bounds['j_percent']])
     u_history, v_history = burgers_timestep(x,y,u,v,nt=500,dt=0.001,nu=0.1)

@@ -6,14 +6,14 @@ from nangs import PDE
 import math 
 
 class burgers_pde(PDE):
-    def __init__(self,inputs,outputs,mu:float=0.1):
+    def __init__(self,inputs,outputs,nu:float=0.1):
         super().__init__(inputs,outputs)
         """Initializes Burger's PDE 
 
         Args:
-            mu (float, optional): [description]. Defaults to 0.1.
+            nu (float, optional): [description]. Defaults to 0.1.
         """
-        self.mu = mu 
+        self.nu = nu 
 
     def computePDELoss(self,inputs:torch.Tensor,outputs:torch.Tensor):
         """Compute the loss in burger's equation 
@@ -43,5 +43,5 @@ class burgers_pde(PDE):
 
         # Burgers PDE
         return { 
-            'u_velocity': du_dt + u*du_dx + v*du_dy - self.mu * (ddu_dxx+ ddu_dyy),
-            'v_velocity': dv_dt + u*dv_dx + v*dv_dy - self.mu * (ddv_dxx+ ddv_dyy) }
+            'u_velocity': du_dt + u*du_dx + v*du_dy - self.nu * (ddu_dxx+ ddu_dyy),
+            'v_velocity': dv_dt + u*dv_dx + v*dv_dy - self.nu * (ddv_dxx+ ddv_dyy) }

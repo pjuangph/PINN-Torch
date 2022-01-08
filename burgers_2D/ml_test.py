@@ -8,10 +8,35 @@ import os.path as osp
 import json 
 from burgers_lib import initialize, create_domain, plot_domain_2D, plot_history_2D
 import numpy as np 
+from sklearn.preprocessing import MinMaxScaler
 
 @torch.no_grad()
-def compute_results(model:torch.nn.Module,t:float,X:np.ndarray,Y:np.ndarray):
+def compute_results(model:torch.nn.Module,x:np.ndarray,y:np.ndarray,t:float):
+    """[summary]
+
+    Args:
+        model (torch.nn.Module): model 
+        X (np.ndarray): vector containing x coordinates
+        Y (np.ndarray): vector containing y coordinates 
+        t (float): time in seconds
+
+    Returns:
+        (tuple): containing
+
+            **u** (np.ndarray): u velocity
+            **v** (np.ndarray): v velocity
+    """
+    # Create the inputs 
     
+    t = x*0+t 
+    x = torch.tensor(x,dtype=torch.float32)
+    y = torch.tensor(y,dtype=torch.float32)
+    t = torch.tensor(t,dtype=torch.float32)
+    input = torch.stack((x,y,t),dim=1)
+    out = model(input).detach().numpy()
+    return out[:,0], out[:,1]
+    
+
 if __name__=="__main__":
     
 
@@ -24,17 +49,29 @@ if __name__=="__main__":
     with open('settings.json','r') as f:
         settings = json.load(f)
         settings = settings['Burgers2D']
-        x,y,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
-        X,Y = np.meshgrid(x,y)
-        
-    t = range(0,settings['tmax'],100) # user will change this 
-    time_tensor = X*0 + t
 
+        x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
+        X,Y = np.meshgrid(x_original,y_original)
+
+    t = np.arange(0.1,settings['tmax'],100) # user will change this 
 
     if osp.exists('burgers_train.pt'):
         data = torch.load('burgers_train.pt')
-    
+        x_scaler = data['scalers']['x_scaler']
+        y_scaler = data['scalers']['y_scaler']
+        u_scaler = data['scalers']['u_scaler']
+        v_scaler = data['scalers']['v_scaler']
+    # Normalize
+    x = x_scaler.fit_transform(X.flatten().reshape(-1,1))[:,0]
+    y = y_scaler.fit_transform(Y.flatten().reshape(-1,1))[:,0]
+
     model = MultiLayerLinear(data['num_inputs'],data['num_outputs'],data['hidden_layers'])
-    
-    model.eval()
+    for i in range(len(t)):
+        u,v = compute_results(model,x,y,t[i])
+        u = u_scaler.inverse_transform(u.reshape(-1,1))
+        v = v_scaler.inverse_transform(v.reshape(-1,1))        
+
+        u = u.reshape(X.shape[0],X.shape[1])
+        v = v.reshape(X.shape[0],X.shape[1])
+        plot_domain_2D('ml',x_original,y_original,u,v)
     

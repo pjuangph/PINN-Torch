@@ -43,7 +43,7 @@ with open('settings.json','r') as f:
 
         comparison = torch.logical_and(torch.logical_and(inputs['x']>=x_lb, inputs['x']<= x_ub), torch.logical_and(inputs['y']>=y_lb, inputs['y']<=y_ub))
         
-        u = comparison * 3 + (~comparison) * 1
+        u = comparison * settings["u"]["max"] + (~comparison) * settings["u"]["min"]
         
         # V
         x_lb = settings['x']['min'] + v_bounds['x_percent'][0]*Lx
@@ -54,7 +54,7 @@ with open('settings.json','r') as f:
 
         comparison = torch.logical_and(torch.logical_and(inputs['x']>=x_lb, inputs['x']<= x_ub), torch.logical_and(inputs['y']>=y_lb, inputs['y']<=y_ub))
 
-        v = comparison * 3 + (~comparison) * 1
+        v = comparison * settings["v"]["max"] + (~comparison) * settings["v"]["min"]
 
         return {'u': u.type(torch.FloatTensor).to(device),
                 'v': v.type(torch.FloatTensor).to(device)}
@@ -96,25 +96,25 @@ with open('settings.json','r') as f:
     """
     wall_bottom = Dirichlet(
         RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['min'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
+        lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
         name="wall-bottom"
     )
 
     wall_top = Dirichlet(
         RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['max'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
+        lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
         name="wall-top"
     )
 
     wall_left = Dirichlet(
         RandomSampler({'x': settings['x']['min'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
+        lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
         name="wall-left"
     )
 
     wall_right = Dirichlet(
         RandomSampler({'x': settings['x']['max'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
+        lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
         name="wall-right"
     )
 
@@ -135,7 +135,7 @@ with open('settings.json','r') as f:
     pde.add_boco(wall_right)
 
     # solve
-    LR = 1e-3
+    LR = 1e-2
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
     n_layers = 4

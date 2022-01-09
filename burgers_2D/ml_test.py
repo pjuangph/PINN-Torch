@@ -10,6 +10,8 @@ import json
 from burgers_lib import create_domain, plot_domain_2D, plot_history_2D
 import numpy as np 
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import trange
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 @torch.no_grad()
 def compute_results(model:torch.nn.Module,x:np.ndarray,y:np.ndarray,t:float):
@@ -30,11 +32,12 @@ def compute_results(model:torch.nn.Module,x:np.ndarray,y:np.ndarray,t:float):
     # Create the inputs 
     
     t = x*0+t 
-    x = torch.tensor(x,dtype=torch.float32)
-    y = torch.tensor(y,dtype=torch.float32)
-    t = torch.tensor(t,dtype=torch.float32)
+    x = torch.tensor(x,dtype=torch.float32).to(device)
+    y = torch.tensor(y,dtype=torch.float32).to(device)
+    t = torch.tensor(t,dtype=torch.float32).to(device)
     input = torch.stack((x,y,t),dim=1)
-    out = model(input).detach().numpy()
+    out = model(input)
+    out=out.cpu().numpy()
     return out[:,0], out[:,1]
     
 
@@ -63,9 +66,13 @@ if __name__=="__main__":
     y = Y.flatten()
     model = MLP(data['num_inputs'],data['num_outputs'],data['n_layers'],data['neurons'])
     model.load_state_dict(data["model"])
-    for i in range(len(t)):
+    model.to(device)
+    u_history = list(); v_history=list()
+    for i in trange(len(t)):
         u,v = compute_results(model,x,y,t[i])
-        u = u.reshape(X.shape[0],X.shape[1])
-        v = v.reshape(X.shape[0],X.shape[1])
-        plot_domain_2D('ml',X,Y,u,v,i)
+        u_history.append(u.reshape(X.shape[0],X.shape[1]))
+        v_history.append(v.reshape(X.shape[0],X.shape[1]))
+    print('creating figures')
+    for i in trange(len(u_history)):
+        plot_domain_2D('ml',X,Y,u_history[i],v_history[i],i)
     

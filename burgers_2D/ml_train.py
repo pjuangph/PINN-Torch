@@ -86,7 +86,7 @@ with open('settings.json','r') as f:
     initial_conditions = Dirichlet(
         RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': 0.0}, device=device, n_samples=1000), 
         compute_initial_condition,
-        name="initial-conditions"
+        name="ics"
     )
 
     pde = burgers_pde(inputs=('x', 'y', 't'), outputs=('u', 'v'),nu=settings['nu'])
@@ -97,26 +97,26 @@ with open('settings.json','r') as f:
     wall_bottom = Dirichlet(
         RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['min'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
-        name="wall-bottom"
-    )
+        name="wb"
+    ) # wall bottom
 
     wall_top = Dirichlet(
         RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['max'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
-        name="wall-top"
-    )
+        name="wt"
+    ) # wall-top
 
     wall_left = Dirichlet(
         RandomSampler({'x': settings['x']['min'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
-        name="wall-left"
-    )
+        name="wl"
+    ) # wall left
 
     wall_right = Dirichlet(
         RandomSampler({'x': settings['x']['max'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
         lambda inputs: {'u': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device), 'v': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)},
-        name="wall-right"
-    )
+        name="wr"
+    ) # wall right
 
     """
         Solving the PDE
@@ -135,7 +135,7 @@ with open('settings.json','r') as f:
     pde.add_boco(wall_right)
 
     # solve
-    LR = 1e-2
+    LR = 1e-3
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
     n_layers = 4
@@ -144,7 +144,7 @@ with open('settings.json','r') as f:
 
     mlp = MLP(n_inputs,n_outputs,n_layers,neurons).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
     optimizer = torch.optim.Adam(mlp.parameters(), lr=LR)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[int(0.2*n_steps),int(0.8*n_steps)], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[int(0.2*n_steps),int(0.4*n_steps),int(0.6*n_steps),int(0.8*n_steps)], gamma=0.1)
 
     pde.compile(mlp, optimizer, scheduler)
     hist = pde.solve(n_steps)

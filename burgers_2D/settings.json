@@ -1,33 +1,33 @@
 {
     "Burgers2D":{
         "u":{
-            "max":1,
-            "min":0
+            "max":3,
+            "min":1
         },
         "v":{
-            "max":1,
-            "min":0
+            "max":3,
+            "min":1
         },
         "x":{
-            "max":1,
+            "max":2,
             "min":0
         },
         "y":{
-            "max":1,
+            "max":2,
             "min":0
         },        
         "u_bounds":{
-            "x_percent":[0.2,0.8],
-            "y_percent":[0.2,0.8]
+            "x_percent":[0.4,0.6],
+            "y_percent":[0.4,0.6]
         },
         "v_bounds":{
-            "x_percent":[0.2,0.8],
-            "y_percent":[0.2,0.8]
+            "x_percent":[0.4,0.6],
+            "y_percent":[0.4,0.6]
         },
         "nx":41,
         "ny":41,
-        "nu":0.01,
+        "nu":0.1,
         "dt":0.001,
-        "tmax":1
+        "tmax":500
     }
 }

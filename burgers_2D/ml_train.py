@@ -138,8 +138,8 @@ with open('settings.json','r') as f:
     LR = 1e-3
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
-    n_layers = 4
-    neurons = 128
+    n_layers = 5
+    neurons = 64
     n_steps = 20000
 
     mlp = MLP(n_inputs,n_outputs,n_layers,neurons).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)

@@ -51,7 +51,7 @@ if __name__=="__main__":
         settings = json.load(f)
         settings = settings['Burgers2D']
 
-        x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'],xmax=1,ymax=1)
+        x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'],xmax=settings['x']['max'],ymax=settings['y']['max'])
         X,Y = np.meshgrid(x_original,y_original)
 
     t = np.arange(0,1,0.1) # user will change this 
@@ -68,7 +68,8 @@ if __name__=="__main__":
 
     x = X.flatten()
     y = Y.flatten()
-    model = MLP(data['num_inputs'],data['num_outputs'],5,128)
+    model = MLP(data['num_inputs'],data['num_outputs'],data['n_layers'],data['neurons'])
+    model.load_state_dict(data["model"])
     for i in range(len(t)):
         u,v = compute_results(model,x,y,t[i])
 

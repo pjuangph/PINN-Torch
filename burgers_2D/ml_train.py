@@ -2,10 +2,10 @@ import sys, torch
 from typing import Dict
 from sklearn.preprocessing import MinMaxScaler
 sys.path.insert(0,'../../nangs')
-from burgers_lib import initialize, create_domain, plot_domain_2D, plot_history_2D
+from burgers_lib import create_domain
 from ml.burgers_pde import burgers_pde
 from nangs import Dirichlet, MLP 
-from nangs.samplers import Custom_Sampler,RandomSampler
+from nangs.samplers import RandomSampler
 import numpy as np 
 import json 
 import matplotlib.pyplot as plt 
@@ -84,7 +84,7 @@ with open('settings.json','r') as f:
     # plt.show()
 
     initial_conditions = Dirichlet(
-        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': 0.0}, device=device, n_samples=1000), 
+        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': 0.0}, device=device, n_samples=5000), 
         compute_initial_condition,
         name="ics"
     )
@@ -125,7 +125,7 @@ with open('settings.json','r') as f:
         'x': [settings['x']['min'], settings['x']['max']],
         'y': [settings['y']['min'], settings['y']['max']],
         't': [0, settings['tmax']]
-    },device=device, n_samples=1000)
+    },device=device, n_samples=5000)
 
     pde.set_sampler(pde_sampler)
     pde.add_boco(initial_conditions)
@@ -138,9 +138,9 @@ with open('settings.json','r') as f:
     LR = 1e-3
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
-    n_layers = 5
+    n_layers = 6
     neurons = 64
-    n_steps = 20000
+    n_steps = 25000
 
     mlp = MLP(n_inputs,n_outputs,n_layers,neurons).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
     optimizer = torch.optim.Adam(mlp.parameters(), lr=LR)

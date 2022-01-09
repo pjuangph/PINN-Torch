@@ -1,6 +1,6 @@
 import numpy as np
 import copy 
-
+from tqdm import trange 
 def burgers_timestep(x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarray,nt:int,dt:float=0.001,nu:float=0.1):
     """Solving burgers equation using finite difference with euler time step (1st order approximation) 
 
@@ -21,18 +21,18 @@ def burgers_timestep(x:np.ndarray,y:np.ndarray,u:np.ndarray,v:np.ndarray,nt:int,
     """
 
 
-    dx = x[1]-x[0] # We can do it this way because x and y are initialized using linspace which guarantees constant spacing 
-    dy = y[1]-y[0]
+    dx = x[0,2]-x[0,1] # We can do it this way because x and y are initialized using linspace which guarantees constant spacing 
+    dy = y[1,0]-y[0,0]
 
     u_history = list()
     v_history = list() 
     u_history.append(copy.deepcopy(u)) # set equal to initial value
     v_history.append(copy.deepcopy(v))
-    for n in range(nt):
+    for n in trange(nt):
         un = u.copy()   # previous value
         vn = v.copy()
-        for i in range(1,len(x)-1):
-            for j in range(1,len(y)-1):
+        for i in range(1,x.shape[0]-1):
+            for j in range(1,y.shape[1]-1):
                 # Uses backward difference in space to solve first order derivative
                 # Central differencing for second order derivative 
                 u[i,j] = (un[i, j] -(un[i, j] * dt / dx * (un[i, j] - un[i-1, j])) -vn[i, j] * dt / dy * (un[i, j] - un[i, j-1])) + (nu*dt/(dx**2))*(un[i+1,j]-2*un[i,j]+un[i-1,j])+(nu*dt/(dx**2))*(un[i,j-1]-2*un[i,j]+un[i,j+1])

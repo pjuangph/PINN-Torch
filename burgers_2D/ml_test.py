@@ -4,10 +4,10 @@
 '''
 import torch, sys
 sys.path.insert(0,'../../nangs')
-from nangs import Dirichlet, MLP 
+from nangs import MLP 
 import os.path as osp 
 import json 
-from burgers_lib import initialize, create_domain, plot_domain_2D, plot_history_2D
+from burgers_lib import create_domain, plot_domain_2D, plot_history_2D
 import numpy as np 
 from sklearn.preprocessing import MinMaxScaler
 
@@ -54,17 +54,10 @@ if __name__=="__main__":
         x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'],xmax=settings['x']['max'],ymax=settings['y']['max'])
         X,Y = np.meshgrid(x_original,y_original)
 
-    t = np.arange(0,1,0.1) # user will change this 
+    t = np.arange(0,settings['tmax'],settings['dt']) # user will change this 
 
     if osp.exists('burgers_train.pt'):
         data = torch.load('burgers_train.pt')
-    #     x_scaler = data['scalers']['x_scaler']
-    #     y_scaler = data['scalers']['y_scaler']
-    #     u_scaler = data['scalers']['u_scaler']
-    #     v_scaler = data['scalers']['v_scaler']
-    # # Normalize
-    # x = x_scaler.fit_transform(X.flatten().reshape(-1,1))[:,0]
-    # y = y_scaler.fit_transform(Y.flatten().reshape(-1,1))[:,0]
 
     x = X.flatten()
     y = Y.flatten()
@@ -72,8 +65,7 @@ if __name__=="__main__":
     model.load_state_dict(data["model"])
     for i in range(len(t)):
         u,v = compute_results(model,x,y,t[i])
-
         u = u.reshape(X.shape[0],X.shape[1])
         v = v.reshape(X.shape[0],X.shape[1])
-        plot_domain_2D('ml',x_original,y_original,u,v)
+        plot_domain_2D('ml',X,Y,u,v,i)
     

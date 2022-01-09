@@ -119,3 +119,4 @@ dmypy.json
 *.pt
 
 *.DS_Store*
+figures/

@@ -116,3 +116,6 @@ dmypy.json
 
 # vs codee
 .vscode/
+*.pt
+
+*.DS_Store*

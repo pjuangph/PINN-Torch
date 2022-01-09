@@ -1,6 +1,7 @@
-# imports
+# Example from https://github.com/juansensio/nangs/blob/master/examples/02_adv2d.ipynb
+
 import sys
-sys.path.insert(0,'../')
+sys.path.insert(0,'../../nangs')
 import numpy as np 
 import matplotlib.pyplot as plt 
 import nangs
@@ -8,7 +9,7 @@ import torch
 from nangs import PDE
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-U, V = -0.5, 1
+U, V = -1, 0
 
 class Adv2d(PDE):
     def computePDELoss(self, inputs, outputs):
@@ -44,21 +45,22 @@ x = np.linspace(0, 1, 30)
 y = np.linspace(0, 1, 30)
 t0 = np.array([0])
 _x, _y = np.meshgrid(x, y)
-p0 = np.sin(2*np.pi*_x)*np.sin(2*np.pi*_y)          # Initial value
+p0 = 0.1*np.sin(2*np.pi*_x)+np.sin(2*np.pi*_y)          # Initial value
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 surf = ax.plot_surface(_x, _y, p0.reshape((len(_y),len(_x))), cmap=cm.coolwarm, linewidth=0, antialiased=False)
 fig.colorbar(surf, shrink=0.5, aspect=5)
-# plt.show()
+plt.show()
 
 from nangs import Dirichlet, Periodic
 
 n_samples = 1000
 # This is initial condition because t = 0
+# Note: When you are solving the Neural Network to predict the PDE, you are predicting the value for all times
 initial_condition = Dirichlet(
     RandomSampler({'x': [0., 1.], 'y': [0., 1.], 't': 0.}, device=device, n_samples=n_samples), 
-    lambda inputs: {'p' : torch.sin(2.*np.pi*inputs['x'])*torch.sin(2.*np.pi*inputs['y'])},
+    lambda inputs: {'p' : 0.1*torch.sin(2.*np.pi*inputs['x'])+torch.sin(2.*np.pi*inputs['y'])},
     name="initial"
 )
 
@@ -83,13 +85,14 @@ pde.add_boco(periodic_y)
 
 # solve
 
-from nangs import MLP
+from nangs import MLP, MultiLayerLinear
 
 LR = 1e-2
 N_STEPS = 5000
 NUM_LAYERS = 3
 NUM_HIDDEN = 128
 
+# mlp = MultiLayerLinear(len(pde.inputs), len(pde.outputs),[64,64,64,64]).to(device)
 mlp = MLP(len(pde.inputs), len(pde.outputs), NUM_LAYERS, NUM_HIDDEN).to(device)
 optimizer = torch.optim.Adam(mlp.parameters())
 scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=LR, pct_start=0.1, div_factor=10, final_div_factor=1, total_steps=N_STEPS)

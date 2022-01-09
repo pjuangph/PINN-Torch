@@ -51,10 +51,10 @@ if __name__=="__main__":
         settings = json.load(f)
         settings = settings['Burgers2D']
 
-        x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'])
+        x_original,y_original,u,v = create_domain(nx=settings['nx'],ny=settings['ny'],xmax=1,ymax=1)
         X,Y = np.meshgrid(x_original,y_original)
 
-    t = np.arange(0,settings['tmax'],100) # user will change this 
+    t = np.arange(0,1,0.1) # user will change this 
 
     if osp.exists('burgers_train.pt'):
         data = torch.load('burgers_train.pt')

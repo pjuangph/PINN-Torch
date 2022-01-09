@@ -10,24 +10,24 @@
         },
         "x":{
             "max":2,
-            "min":1
+            "min":0
         },
         "y":{
             "max":2,
-            "min":1
+            "min":0
         },        
         "u_bounds":{
-            "x_percent":[0.2,0.5],
-            "y_percent":[0.2,0.5]
+            "x_percent":[0.2,0.8],
+            "y_percent":[0.2,0.8]
         },
         "v_bounds":{
-            "x_percent":[0.2,0.3],
-            "y_percent":[0.1,0.3]
+            "x_percent":[0.2,0.8],
+            "y_percent":[0.2,0.8]
         },
         "nx":41,
         "ny":41,
         "nu":0.1,
         "dt":0.001,
-        "tmax":500
+        "tmax":2
     }
 }

@@ -8,6 +8,8 @@ from nangs import Dirichlet, MLP
 from nangs.samplers import Custom_Sampler,RandomSampler
 import numpy as np 
 import json 
+import matplotlib.pyplot as plt 
+from matplotlib import cm
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -28,10 +30,10 @@ with open('settings.json','r') as f:
         - The inputs are the denominators of the physics equation. 
         - Outputs are the quantities of interest. For the Burger's equation we want 
     """
-    def initial_conditions_func(inputs):
+    def compute_initial_condition(inputs):
         Lx = settings['x']['max'] -  settings['x']['min']
         Ly = settings['y']['max'] -  settings['y']['min']
-        
+
         # U 
         x_lb = settings['x']['min'] + u_bounds['x_percent'][0]*Lx
         x_ub = settings['x']['min'] + u_bounds['x_percent'][1]*Lx
@@ -41,7 +43,7 @@ with open('settings.json','r') as f:
 
         comparison = torch.logical_and(torch.logical_and(inputs['x']>=x_lb, inputs['x']<= x_ub), torch.logical_and(inputs['y']>=y_lb, inputs['y']<=y_ub))
         
-        u = comparison * settings['u']['max'] + (~comparison) * settings['u']['min']
+        u = comparison * 3 + (~comparison) * 1
         
         # V
         x_lb = settings['x']['min'] + v_bounds['x_percent'][0]*Lx
@@ -52,15 +54,38 @@ with open('settings.json','r') as f:
 
         comparison = torch.logical_and(torch.logical_and(inputs['x']>=x_lb, inputs['x']<= x_ub), torch.logical_and(inputs['y']>=y_lb, inputs['y']<=y_ub))
 
-        v = comparison * settings['v']['max'] + (~comparison) * settings['u']['min']
+        v = comparison * 3 + (~comparison) * 1
 
         return {'u': u.type(torch.FloatTensor).to(device),
-                'v':v.type(torch.FloatTensor).to(device)}
+                'v': v.type(torch.FloatTensor).to(device)}
 
+    # x = torch.linspace(0,2,50)
+    # y = torch.linspace(0,2,50)
+    # xx, yy = torch.meshgrid(x,y)
+
+    # ic = compute_initial_condition({'x': xx, 'y': yy})
+    # u,v= ic['u'].cpu().detach().numpy(), ic['v'].cpu().detach().numpy()
+
+    # fig = plt.figure(figsize=(30,10), dpi=300)
+    # ax1 = fig.add_subplot(121,projection="3d") # Plot of u
+    # ax1.plot_surface(xx,yy, u, cmap=cm.jet)
+    # ax1.set_xlabel('x direction')
+    # ax1.set_ylabel('y direction')
+    # ax1.set_zlabel('Velocity')
+    # ax1.set_title('U - velocity')
+    # # ax1.set_zlim([-1,1])
+
+    # ax2 = fig.add_subplot(122,projection="3d") # Plot of v``    
+    # ax2.plot_surface(xx, yy, v, cmap=cm.jet)
+    # ax2.set_xlabel('x direction')
+    # ax2.set_ylabel('y direction')
+    # ax2.set_zlabel('Velocity')
+    # ax2.set_title('V - velocity')
+    # plt.show()
 
     initial_conditions = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': [0., 2.], 't': 0.}, device=device, n_samples=1000), 
-        lambda inputs: initial_conditions_func(inputs),
+        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': 0.0}, device=device, n_samples=1000), 
+        compute_initial_condition,
         name="initial-conditions"
     )
 
@@ -70,26 +95,26 @@ with open('settings.json','r') as f:
         Set the wall boundary condition
     """
     wall_bottom = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': 0., 't': [0., settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
+        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['min'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
+        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
         name="wall-bottom"
     )
 
     wall_top = Dirichlet(
-        RandomSampler({'x': [0., 2.], 'y': 2., 't': [0., settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
+        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': settings['y']['max'], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
+        lambda inputs: {'u': torch.as_tensor(1+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
         name="wall-top"
     )
 
     wall_left = Dirichlet(
-        RandomSampler({'x': 0., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
+        RandomSampler({'x': settings['x']['min'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
+        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
         name="wall-left"
     )
 
     wall_right = Dirichlet(
-        RandomSampler({'x': 2., 'y': [0, 2.], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
-        lambda inputs: {'u': torch.as_tensor(1*inputs['x']).to(device), 'v': torch.as_tensor(1*inputs['x']).to(device)},
+        RandomSampler({'x': settings['x']['max'], 'y': [settings['y']['min'], settings['y']['max']], 't': [0, settings['tmax']]}, device=device, n_samples=1000), 
+        lambda inputs: {'u': torch.as_tensor(1.0+0*inputs['x']).to(device), 'v': torch.as_tensor(1.0+0*inputs['x']).to(device)},
         name="wall-right"
     )
 
@@ -97,10 +122,10 @@ with open('settings.json','r') as f:
         Solving the PDE
     """
     pde_sampler = RandomSampler({
-        'x': [0.,2.],
-        'y': [0.,2.],
-        't': [0., settings['tmax']]
-    },device=device, n_samples=20000)
+        'x': [settings['x']['min'], settings['x']['max']],
+        'y': [settings['y']['min'], settings['y']['max']],
+        't': [0, settings['tmax']]
+    },device=device, n_samples=1000)
 
     pde.set_sampler(pde_sampler)
     pde.add_boco(initial_conditions)
@@ -110,13 +135,16 @@ with open('settings.json','r') as f:
     pde.add_boco(wall_right)
 
     # solve
+    LR = 1e-3
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
-    hidden_layers = [64,64,64,64]
-    n_steps = 5000
-    mlp = MLP(n_inputs,n_outputs,5,128).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
-    optimizer = torch.optim.Adam(mlp.parameters())
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, pct_start=0.1, div_factor=2, final_div_factor=1, total_steps=n_steps)
+    n_layers = 4
+    neurons = 128
+    n_steps = 20000
+
+    mlp = MLP(n_inputs,n_outputs,n_layers,neurons).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
+    optimizer = torch.optim.Adam(mlp.parameters(), lr=LR)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[int(0.2*n_steps),int(0.8*n_steps)], gamma=0.1)
 
     pde.compile(mlp, optimizer, scheduler)
     hist = pde.solve(n_steps)
@@ -127,7 +155,8 @@ with open('settings.json','r') as f:
                 'history':hist,
                 'num_inputs':n_inputs,
                 'num_outputs':n_outputs,
-                'hidden_layers':hidden_layers,
+                'n_layers':n_layers,
+                'neurons':neurons,
                 'tmax':settings['tmax'],
                 }, 'burgers_train.pt')
 

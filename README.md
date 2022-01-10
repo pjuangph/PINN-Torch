@@ -1,6 +1,11 @@
-## PINN-Torch Physics informed neural network using pytorch
+## PINN-Torch Physics Informed Neural Network using PyTorch
 
 The intent of this repository is to show how to solve example and test PDEs using neural networks. The goal is to provide excellent documentation for others to learn from and also create interactive tutorials that spin up on google colab. 
+
+## Requirements
+
+All requirements are in the `requirements.txt`. To get started, simply do `pip install -r requirements.txt` 
+
 
 ---
 ### Note: 

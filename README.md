@@ -26,6 +26,6 @@ All of these examples are presented on a 2D Domain of x and y. The importance of
 # Useful references
 1. [Solving PDES (nangs)](https://github.com/pjuangph/PINN-Torch/blob/main/references/Solving_PDE_with_NN.pdf) I used their code, nangs, in this repo quite often. I highly reccomend their work. 
 
-# Not useful reference
+# Not so useful reference
 1. [Physics based deep learning](https://github.com/pjuangph/PINN-Torch/blob/main/references/physics%20based%20deep%20learning.pdf) These guys have a website designed to make you click. They show different examples of way to solve a PDE but their website isn't as current as the research. 
 

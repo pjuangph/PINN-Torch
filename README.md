@@ -21,3 +21,11 @@ All of these examples are presented on a 2D Domain of x and y. The importance of
 - [Viscous Burgers](https://github.com/pjuangph/PINN-Torch/tree/main/burgers_2D): Burgers equation describes the viscous movement of fluid at each location on a 2D space as a function of time. 
 - [Poisson Equation for Heat Conduction](https://github.com/pjuangph/PINN-Torch/tree/main/Poisson): This example shows how to use poisson's equation to describe the heat conduction through a plate 
 - [Euler 2D](https://github.com/pjuangph/PINN-Torch/tree/main/euler): This example shows how neural networks to solve euler's equation in gas dynamics for a 2D flow field 
+
+
+# Useful references
+1. [Solving PDES (nangs)] https://github.com/pjuangph/PINN-Torch/blob/main/references/Solving_PDE_with_NN.pdf I used their code, nangs, in this repo quite often. I highly reccomend their work. 
+
+# Not useful reference
+1. [Physics based deep learning](https://github.com/pjuangph/PINN-Torch/blob/main/references/physics%20based%20deep%20learning.pdf) These guys have a website designed to make you click. They show different examples of way to solve a PDE but their website isn't as current as the research. 
+

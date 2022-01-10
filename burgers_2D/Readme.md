@@ -63,6 +63,13 @@ for n in trange(nt):
 
 ![](https://github.com/pjuangph/PINN-Torch/blob/main/burgers_2D/analytical.gif)
 
+At the final Timestep
+Analytical
+![](https://github.com/pjuangph/PINN-Torch/blob/main/burgers_2D/analytical_burgers_final_timestep.png)
+
+ML 
+![](https://github.com/pjuangph/PINN-Torch/blob/main/burgers_2D/ml_burgers_final_timestep.png)
+
 ##ML Solution
 Solving the machine learning solution is a bit difference different. There's no finite differencing, instead you define your loss equation of your PDE
 

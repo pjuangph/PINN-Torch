@@ -1,5 +1,3 @@
-
-
 # The Burgers Equation
 Burger's equation is used to model the viscosity's effect on a flow through a pipe. The assumption is that there's no flow at the boundary. Boundary of the domain is assumed to be a fixed wall. The flow is only exists inside the domain. The effects of viscosity causes the velocity (u, v) to decay to 0 near the walls.  
 
@@ -19,6 +17,15 @@ For 2D:
 ```
 
 More info on 2D Burgers: http://cfdmoments.blogspot.com/2014/07/2d-burgers-equation.html 
+
+# Getting Started
+
+## Analytical
+To run the analytical solution simply do `python analytical_run.py`
+
+## Machine Learning
+To run the machine learning code simply do `python ml_train.py`
+Plotting the results `python ml_test.py` 
 
 
 # Burgers actual solution in 1D 

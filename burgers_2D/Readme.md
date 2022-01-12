@@ -20,10 +20,10 @@ More info on 2D Burgers: http://cfdmoments.blogspot.com/2014/07/2d-burgers-equat
 
 # Getting Started
 
-## Analytical
+# Analytical
 To run the analytical solution simply do `python analytical_run.py`
 
-## Machine Learning
+# Machine Learning
 To run the machine learning code simply do `python ml_train.py`
 Plotting the results `python ml_test.py` 
 

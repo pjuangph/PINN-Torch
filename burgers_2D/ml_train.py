@@ -84,7 +84,7 @@ with open('settings.json','r') as f:
     # plt.show()
 
     initial_conditions = Dirichlet(
-        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': 0.0}, device=device, n_samples=5000), 
+        RandomSampler({'x': [settings['x']['min'], settings['x']['max']], 'y': [settings['y']['min'], settings['y']['max']], 't': [-0.001,0]}, device=device, n_samples=1000), 
         compute_initial_condition,
         name="ics"
     )
@@ -125,7 +125,7 @@ with open('settings.json','r') as f:
         'x': [settings['x']['min'], settings['x']['max']],
         'y': [settings['y']['min'], settings['y']['max']],
         't': [0, settings['tmax']]
-    },device=device, n_samples=5000)
+    },device=device, n_samples=1000)
 
     pde.set_sampler(pde_sampler)
     pde.add_boco(initial_conditions)

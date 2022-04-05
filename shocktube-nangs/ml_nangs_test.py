@@ -102,9 +102,9 @@ if __name__=="__main__":
         
         dx = (x_fin-x_ini)/ncells   # Step size
         nx = ncells+1               # Number of points
-        x = np.linspace(x_ini+dx/2.,x_fin,nx) # Mesh
-
+        x = np.linspace(0,x_fin,nx) # Mesh
         t = np.arange(0,config['tmax'],0.001) # user will change this 
+
     config_name = config['name']
     if osp.exists(f'{config_name}.pt'):
         data = torch.load(f'{config_name}.pt')

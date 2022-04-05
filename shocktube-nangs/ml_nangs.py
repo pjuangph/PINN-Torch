@@ -24,7 +24,7 @@ with open('settings.json','r') as f:
     
     dx = (x_fin-x_ini)/ncells   # Step size
     nx = ncells+1               # Number of points
-    x = np.linspace(x_ini+dx/2.,x_fin,nx) # Mesh
+    x = np.linspace(0,x_fin,nx) # Mesh
 
     def compute_initial_condition(inputs:Dict[str,float]):
         """Initialization
@@ -55,7 +55,7 @@ with open('settings.json','r') as f:
 
     res = compute_initial_condition({'x':x})
     
-    # Plot initial conditions 
+    # Plot initial conditions <= this shows the right results 
     # fig = plt.figure(figsize=(20,10), dpi=150,num=1,clear=True)
     # fig.suptitle('ML Predicted Quantities', fontsize=16)
     # ax1 = fig.add_subplot(311) # Plot of u
@@ -80,23 +80,23 @@ with open('settings.json','r') as f:
     """
         Set the wall boundary condition. Wave doesn't actually hit the wall. Solution is stopped before this happens
     """
-    # left = Dirichlet(
-    #     RandomSampler({'t': [ 0, config['tmax'] ], 'x': 0}, device=device, n_samples=1000), 
-    #     lambda inputs: {
-    #                     'p': torch.as_tensor(settings["u"]["min"]+0*inputs['x']).to(device),
-    #                     'u': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device),
-    #                     'rho': torch.as_tensor(settings["v"]["min"]+0*inputs['x']).to(device)
-    #                 }, name="left-boundary"
-    # ) # Left
+    left = Dirichlet(
+        RandomSampler({'t': [ 0, config['tmax'] ], 'x': 0}, device=device, n_samples=1000), 
+        lambda inputs: {
+                        'p': torch.as_tensor(config['left']['p0']+np.zeros(1000),dtype=torch.float32).to(device),
+                        'u': torch.as_tensor(config['left']['u0']+np.zeros(1000),dtype=torch.float32).to(device),
+                        'rho': torch.as_tensor(config['left']['r0']+np.zeros(1000),dtype=torch.float32).to(device)
+                    }, name="left-boundary"
+    ) # Left
 
-    # right = Dirichlet(
-    #     RandomSampler({'t': [ 0, config['tmax'] ], 'x': settings['xmax']}, device=device, n_samples=1000), 
-    #     lambda inputs: {
-    #                     'p': torch.as_tensor().to(device),
-    #                     'u': torch.as_tensor().to(device),
-    #                     'rho': torch.as_tensor().to(device)
-    #                 }, name="right-boundary"
-    # ) # Right
+    right = Dirichlet(
+        RandomSampler({'t': [ 0, config['tmax'] ], 'x': settings['xmax']}, device=device, n_samples=1000), 
+        lambda inputs: {
+                        'p': torch.as_tensor(config['right']['p0']+np.zeros(1000),dtype=torch.float32).to(device), 
+                        'u': torch.as_tensor(config['right']['u0']+np.zeros(1000),dtype=torch.float32).to(device),
+                        'rho': torch.as_tensor(config['right']['r0']+np.zeros(1000),dtype=torch.float32).to(device)
+                    }, name="right-boundary"
+    ) # Right
 
     """
         Solving the PDE
@@ -108,14 +108,16 @@ with open('settings.json','r') as f:
 
     pde.set_sampler(pde_sampler)
     pde.add_boco(initial_conditions)
+    pde.add_boco(left)
+    pde.add_boco(right)
     
     # solve
-    LR = 1e-5
+    LR = 1e-4
     n_inputs = len(pde.inputs)
     n_outputs = len(pde.outputs)
-    n_layers = 6
+    n_layers = 3
     neurons = 64
-    n_steps = 25000
+    n_steps = 5000
 
     mlp = MLP(n_inputs,n_outputs,n_layers,neurons).to(device) # MultiLayerLinear(n_inputs, n_outputs, hidden_layers).to(device)
     optimizer = torch.optim.Adam(mlp.parameters(), lr=LR)
@@ -136,7 +138,20 @@ with open('settings.json','r') as f:
                 'settings':settings,
                 }, f'{config_name}.pt')
     
-    # 'scalers': {'x_scaler':x_scaler,'y_scaler':y_scaler,'u_scaler':u_scaler,'v_scaler':v_scaler}
+
+    # Plot the solve PDE at t = 0. This should be same as boundary condition but it is not. 
+
+    from ml_nangs_test import plot_results, compute_results
+    from pathlib import Path
+    import copy
+    p = Path("ml_plots/")
+    p.mkdir(parents=True, exist_ok=True)
+
+    print('Evaluating and saving data')
+    p_history = list()
+    u_history = list()
+    rho_history = list()
+    p,u,rho = compute_results(mlp,x,0)
+    plot_results(x,p,u,rho,0)
     
-    # plot_domain_2D('burgers_2D',x,y,u_history[-1],v_history[-1])
-    # plot_history_2D('burgers_2D.gif',u_history,v_history,x,y)
+    

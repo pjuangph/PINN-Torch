@@ -124,7 +124,7 @@ with open('settings.json','r') as f:
     pde_sampler = RandomSampler({
         'x': [settings['x']['min'], settings['x']['max']],
         'y': [settings['y']['min'], settings['y']['max']],
-        't': [0.00001, settings['tmax']]
+        't': [0.0, settings['tmax']]
     },device=device, n_samples=1000)
 
     pde.set_sampler(pde_sampler)

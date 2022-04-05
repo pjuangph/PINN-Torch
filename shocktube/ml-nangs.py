@@ -135,7 +135,6 @@ with open('settings.json','r') as f:
                 'neurons':neurons,
                 'settings':settings,
                 }, f'{config_name}.pt')
-
     
     # 'scalers': {'x_scaler':x_scaler,'y_scaler':y_scaler,'u_scaler':u_scaler,'v_scaler':v_scaler}
     

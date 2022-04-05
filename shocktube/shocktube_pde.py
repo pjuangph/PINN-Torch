@@ -21,8 +21,8 @@ class shocktube_pde(PDE):
 
         Args:
             inputs (torch.Tensor): x, t as tensors with shape of (npoints, 2)
-            outputs (torch.Tensor): this is p0, u0, and r0 as tensors with shape of (npoints,3)
-        """        
+            outputs (torch.Tensor): this is p, u, and r as tensors with shape of (npoints,3)
+        """
         # To compute du_dx, du_dy we have to extract u and v from the outputs and use them in the gradients
         p, u, rho = outputs[:,0], outputs[:,1], outputs[:,2]
 

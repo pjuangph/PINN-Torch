@@ -13,7 +13,7 @@ rho E
 \end{bmatrix} 
 +
 \frac{\partial}{\partial x} \begin{bmatrix}
-\rho v \\
+\rho u \\
 \rho u^2 + P \\
 (rhoE + P) * u
 \end{bmatrix} = 0
@@ -22,7 +22,7 @@ rho E
 
 ```math
 F(U) = \begin{bmatrix}
-\rho v \\
+\rho u \\
 \rho u^2 + P \\
 (rhoE + P) * u
 \end{bmatrix}

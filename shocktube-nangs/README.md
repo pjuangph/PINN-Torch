@@ -76,5 +76,49 @@ Note:
 ## Roe Upwind Scheme 
 Roe and upwind schemes in general must rely on characteristic theory to determine the direction of propagation of information to discretize the spatial derivatives. 
 
+# Application of nangs to Shocktube
+
+The application of nangs doesn't quite work. Here's why I think it fails. The MLP (Multilayer perception) used in nangs is very basic. They assumed that this MLP is good for solving multiple problems, it is. 
+nangs PDE https://github.com/juansensio/nangs/blob/master/nangs/nn/mlp.py 
+
+```python
+class Sine(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return torch.sin(x)
+
+
+def block(i, o):
+    fc = torch.nn.Linear(i, o)
+    return torch.nn.Sequential(
+        Sine(),
+        torch.nn.Linear(i, o)
+    )
+
+
+class MLP(torch.nn.Module):
+    def __init__(self, inputs, outputs, layers, neurons):
+        super().__init__()
+        fc_in = torch.nn.Linear(inputs, neurons)
+        fc_hidden = [
+            block(neurons, neurons)
+            for layer in range(layers-1)
+        ]
+        fc_out = block(neurons, outputs)
+
+        self.mlp = torch.nn.Sequential(
+            fc_in,
+            *fc_hidden,
+            fc_out
+        )
+
+    def forward(self, x):
+        return self.mlp(x)
+```
+
+changing `sin` to `cos` significantly alters the result. I was not able to reproduce the initial conditions at t=0. If this fails then the rest of it fails as well.
+
 
 

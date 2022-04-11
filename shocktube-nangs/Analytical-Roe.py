@@ -297,4 +297,6 @@ while t < tEnd:
         plt.subplots_adjust(bottom=0.15)
         plt.subplots_adjust(top=0.95)
         #plt.show()
-        fig.savefig("analytical_plots/fig_Sod_Roe_it"+str(it)+".png", dpi=300)
+        import os
+        os.makedirs('analytical_plots',exist_ok=True)
+        fig.savefig(f"analytical_plots/fig_Sod_Roe_it_{it:04d}.png", dpi=300)

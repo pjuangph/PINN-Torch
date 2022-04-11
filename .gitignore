@@ -122,3 +122,4 @@ dmypy.json
 figures/
 ml_plots/
 analytical_plots/
+*.gif

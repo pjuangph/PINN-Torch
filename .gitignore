@@ -120,3 +120,5 @@ dmypy.json
 
 *.DS_Store*
 figures/
+ml_plots/
+analytical_plots/

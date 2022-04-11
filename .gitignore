@@ -123,3 +123,4 @@ figures/
 ml_plots/
 analytical_plots/
 *.gif
+~$*

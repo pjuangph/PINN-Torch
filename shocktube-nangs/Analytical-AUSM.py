@@ -86,55 +86,28 @@ def func_flux(q,gamma):
     
     return (flux)
 
-def flux_roe(q,dx,gamma,a,nx):
+def flux_ausm(q,dx,gamma,a,nx):
+    # AUSM Mach Number 
+    u = q[1]/q[0]
+    M = u/a 
+    M_plus = np.greater_equal(M,1)*0.25*(M+1)**2 + \
+                np.less(M,1) * 0.5*(M+abs(M)) # M+
 
-    # Compute primitive variables and enthalpy
-    r=q[0];
-    u=q[1]/r;
-    E=q[2]/r;
-    p=(gamma-1.)*r*(E-0.5*u**2);
-    htot = gamma/(gamma-1)*p/r+0.5*u**2
+    M_neg = np.greater_equal(M,1)*(-1/4*(M-1)**2)  + \
+                np.less(M,1)*0.5*(M-abs(M)) # M- 
     
-    # Initialize Roe flux
-    Phi=np.zeros((3,nx-1))
-    
-    for j in range (0,nx-1):
-    
-        # Compute Roe averages
-        R=sqrt(r[j+1]/r[j]);                          # R_{j+1/2}
-        rmoy=R*r[j];                                  # {hat rho}_{j+1/2}
-        umoy=(R*u[j+1]+u[j])/(R+1);                   # {hat U}_{j+1/2}
-        hmoy=(R*htot[j+1]+htot[j])/(R+1);             # {hat H}_{j+1/2}
-        amoy=sqrt((gamma-1.0)*(hmoy-0.5*umoy*umoy));  # {hat a}_{j+1/2}
-        
-        # Auxiliary variables used to compute P_{j+1/2}^{-1}
-        alph1=(gamma-1)*umoy*umoy/(2*amoy*amoy);
-        alph2=(gamma-1)/(amoy*amoy);
+    M_half = M_plus + np.roll(M_neg,1,axis=0) # ML+  +  MR- 
 
-        # Compute vector (W_{j+1}-W_j)
-        wdif = q[:,j+1]-q[:,j];
-        
-        # Compute matrix P^{-1}_{j+1/2}
-        Pinv = np.array([[0.5*(alph1+umoy/amoy), -0.5*(alph2*umoy+1/amoy),  alph2/2],
-                        [1-alph1,                alph2*umoy,                -alph2 ],
-                        [0.5*(alph1-umoy/amoy),  -0.5*(alph2*umoy-1/amoy),  alph2/2]]);
-                
-        # Compute matrix P_{j+1/2}
-        P    = np.array([[ 1,              1,              1              ],
-                        [umoy-amoy,        umoy,           umoy+amoy      ],
-                        [hmoy-amoy*umoy,   0.5*umoy*umoy,  hmoy+amoy*umoy ]]);
-        
-        # Compute matrix Lambda_{j+1/2}
-        lamb = np.array([[ abs(umoy-amoy),  0,              0                 ],
-                        [0,                 abs(umoy),      0                 ],
-                        [0,                 0,              abs(umoy+amoy)    ]]);
-                      
-        # Compute Roe matrix |A_{j+1/2}|
-        A=np.dot(P,lamb)
-        A=np.dot(A,Pinv)
-        
-        # Compute |A_{j+1/2}| (W_{j+1}-W_j)
-        Phi[:,j]=np.dot(A,wdif)
+    # AUSM Pressure
+
+    # q_half = np.roll(q,1,axis=0)
+    # u_half = q_half[1]/q_half[0]
+    # M_half = u_half/a 
+    for i in range(len(M)):
+        if abs(M[i])<=1:
+            M_plus_minus = (0.25*(M+1)**2, -1/4*(M-1)**2)
+        else:
+            M_plus_minus = (0.5*(M+abs(M)),0.5*(M-abs(M)))
         
     #==============================================================
     # Compute Phi=(F(W_{j+1}+F(W_j))/2-|A_{j+1/2}| (W_{j+1}-W_j)/2

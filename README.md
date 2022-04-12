@@ -7,15 +7,13 @@ The intent of this repository is to show how to solve example and test PDEs usin
 All requirements are in the `requirements.txt`. To get started, simply do `pip install -r requirements.txt` 
 
 
----
-### Note: 
 
-**Displaying Math**: This repository contains a lot of math equations. Github currently does not display latex equations. If you want to see the equations, I reccomend installing xhub google chrome: [xhub](https://github.com/nschloe/xhub)
+> ### Note: 
+> **Displaying Math**: This repository contains a lot of math equations. Github currently does not display latex equations. If you want to see the equations, I reccomend installing xhub google chrome: [xhub](https://github.com/nschloe/xhub)
 
-**Creating GIFs**:To save gif files you need to have imagemagick installed and added to your **path** variable
+> **Creating GIFs**:To save gif files you need to have imagemagick installed and added to your **path** variable
 https://imagemagick.org/script/download.php 
 
-Imagemagick does not work on windows even with legacy version. I will need to try with mac or linux
 ---
 
 ## List of Examples 

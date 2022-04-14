@@ -19,7 +19,7 @@ Domain
     nghost_cells = 10           # Number of ghost cells on each boundary
     x = np.linspace(x_ini,x_fin,nx) # Mesh
 ```
-![domain](domain.png)
+![domain](domain.jpg)
 
 Initial Conditions
 ```python

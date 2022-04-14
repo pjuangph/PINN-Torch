@@ -100,10 +100,14 @@ def update(q:np.ndarray,f:np.ndarray):
         f (np.ndarray): _description_
     """
 
+with open('settings.json','r') as f:
+    settings = json.load(f)
+    config = [c for c in settings['Configurations'] if c['id'] == settings['Configuration_to_run']][0]
+
 # Parameters
-CFL    = 0.50               # Courant Number
-gamma  = 1.4                # Ratio of specific heats
-ncells = 400                # Number of cells
+CFL    = config['CFL']               # Courant Number
+gamma  = config['gamma']             # Ratio of specific heats
+ncells = settings['ncells']          # Number of cells
 x_ini =0.; x_fin = 1.       # Limits of computational domain
 dx = (x_fin-x_ini)/ncells   # Step size
 nx = ncells+1               # Number of points
@@ -115,49 +119,15 @@ r0 = np.zeros(nx)
 u0 = np.zeros(nx)
 p0 = np.zeros(nx)
 halfcells = int(ncells/2)
-with open('settings.json','r') as f:
-    settings = json.load(f)
-    
-IC = 1 # 6 IC cases are available
-if IC == 1:
-    print ("Configuration 1, Sod's Problem")
-    p0[:halfcells] = 1.0  ; p0[halfcells:] = 0.1;
-    u0[:halfcells] = 0.0  ; u0[halfcells:] = 0.0;
-    r0[:halfcells] = 1.0  ; r0[halfcells:] = 0.125;
-    tEnd = 0.20;
-elif IC== 2:
-    print ("Configuration 2, Left Expansion and right strong shock")
-    p0[:halfcells] = 1000.; p0[halfcells:] = 0.1;
-    u0[:halfcells] = 0.0  ; u0[halfcells:] = 0.0;
-    r0[:halfcells] = 3.0  ; r0[halfcells:] = 0.2;
-    tEnd = 0.01;
-elif IC == 3:
-    print ("Configuration 3, Right Expansion and left strong shock")
-    p0[:halfcells] = 7.   ; p0[halfcells:] = 10.;
-    u0[:halfcells] = 0.0  ; u0[halfcells:] = 0.0;
-    r0[:halfcells] = 1.0  ; r0[halfcells:] = 1.0;
-    tEnd = 0.10;
-elif IC == 4:
-    print ("Configuration 4, Shocktube problem of G.A. Sod, JCP 27:1, 1978")
-    p0[:halfcells] = 1.0  ; p0[halfcells:] = 0.1;
-    u0[:halfcells] = 0.75 ; u0[halfcells:] = 0.0;
-    r0[:halfcells] = 1.0  ; r0[halfcells:] = 0.125;
-    tEnd = 0.17;
-elif IC == 5:
-    print ("Configuration 5, Lax test case: M. Arora and P.L. Roe: JCP 132:3-11, 1997")
-    p0[:halfcells] = 3.528; p0[halfcells:] = 0.571;
-    u0[:halfcells] = 0.698; u0[halfcells:] = 0.0;
-    r0[:halfcells] = 0.445; r0[halfcells:] = 0.5;
-    tEnd = 0.15;
-elif IC == 6:
-    print ("Configuration 6, Mach = 3 test case: M. Arora and P.L. Roe: JCP 132:3-11, 1997")
-    p0[:halfcells] = 10.33; p0[halfcells:] = 1.0;
-    u0[:halfcells] = 0.92 ; u0[halfcells:] = 3.55;
-    r0[:halfcells] = 3.857; r0[halfcells:] = 1.0;
-    tEnd = 0.09;
+
+
+p0[:halfcells] = config['left']['p0']; p0[halfcells:] = config['right']['p0'] 
+u0[:halfcells] = config['left']['u0']; u0[halfcells:] = config['right']['u0']
+r0[:halfcells] = config['left']['r0']; r0[halfcells:] = config['right']['r0']
+tEnd = settings['tmax']
 
 E0 = p0/((gamma-1.)*r0)+0.5*u0**2 # Total Energy density
-a0 = sqrt(gamma*p0/r0)            # Speed of sound
+a0 = np.sqrt(gamma*p0/r0)            # Speed of sound
 q  = np.array([r0,r0*u0,r0*E0])   # Vector of conserved variables
 
 # Solver loop

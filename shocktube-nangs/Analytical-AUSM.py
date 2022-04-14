@@ -1,15 +1,3 @@
-#! /usr/bin/env python
-# -*- coding:utf-8 -*-
-
-################################################################
-#
-# Class 07: 1-D Euler system of equations
-# Solve equation using the Roe scheme
-# Author: P. S. Volpiani
-# Date: 01/08/2020
-#
-################################################################
-
 #import os, sys
 import numpy as np
 from numpy import *
@@ -52,72 +40,55 @@ rc('font', size=14)
 #
 ######################################################################
 
-
-#def func_cons2prim(q,gamma):
-#    # Primitive variables
-#    r=q[0];
-#    u=q[1]/r;
-#    E=q[2]/r;
-#    p=(gamma-1.)*r*(E-0.5*u**2);
-#
-#    return (r,u,p)
-
-#def func_prim2cons(r,u,p,gamma):
-#    # Conservative variables
-#    q0=r;
-#    q1=r*u;
-#    q2=p/(gamma-1.)+0.5*r*u**2;
-#    q =np.array([ q0, q1, q2 ]);
-#
-#    return (q)
+def flux_ausm(q:np.ndarray,dx:float,gamma:float,a:float,nx:int):
+    """AUSM Flux Splitting Scheme
     
-def func_flux(q,gamma):
-    # Primitive variables
-    r=q[0];
-    u=q[1]/r;
-    E=q[2]/r;
-    p=(gamma-1.)*r*(E-0.5*u**2);
-    
-    # Flux vector
-    F0 = np.array(r*u)
-    F1 = np.array(r*u**2+p)
-    F2 = np.array(u*(r*E+p))
-    flux=np.array([ F0, F1, F2 ])
-    
-    return (flux)
+        Liou, M. S., & Steffen Jr, C. J. (1993). A new flux splitting scheme. Journal of Computational physics, 107(1), 23-39.
 
-def flux_ausm(q,dx,gamma,a,nx):
+    Args:
+        q (np.ndarray): [3,nx] [rho, rhou, E]
+        dx (float): _description_
+        gamma (float): _description_
+        a (float): _description_
+        nx (int): _description_
+
+    Returns:
+        _type_: _description_
+    """
     # AUSM Mach Number 
-    u = q[1]/q[0]
-    M = u/a 
-    M_plus = np.greater_equal(M,1)*0.25*(M+1)**2 + \
-                np.less(M,1) * 0.5*(M+abs(M)) # M+
+    r = q[0,:]
+    u = q[1,:]/r
+    E=q[2,:]/r
 
-    M_neg = np.greater_equal(M,1)*(-1/4*(M-1)**2)  + \
-                np.less(M,1)*0.5*(M-abs(M)) # M- 
+    M = u/a 
+    P=(gamma-1.)*r*(E-0.5*u**2)
+
+    M_plus = np.less_equal(M,1)*0.25*(M+1)**2 + \
+                np.greater(M,1) * 0.5*(M+abs(M)) # M+
+
+    M_neg = np.less_equal(M,1)*(-0.25*(M-1)**2) + \
+                np.greater(M,1)*0.5*(M-abs(M)) # M- 
     
-    M_half = M_plus + np.roll(M_neg,1,axis=0) # ML+  +  MR- 
+    M_half = M_plus[1:] + M_neg[0:-1]  # (M+ index 1 to end) + (M- index 0 to end-1)
 
     # AUSM Pressure
 
-    # q_half = np.roll(q,1,axis=0)
-    # u_half = q_half[1]/q_half[0]
-    # M_half = u_half/a 
-    for i in range(len(M)):
-        if abs(M[i])<=1:
-            M_plus_minus = (0.25*(M+1)**2, -1/4*(M-1)**2)
-        else:
-            M_plus_minus = (0.5*(M+abs(M)),0.5*(M-abs(M)))
+    P_plus = np.less_equal(M,1)*0.25*P*(M+1)*(M+1) * (2.0 - M) \
+                + np.greater(M,1)*0.5*P*(M+np.abs(M)) / M
+
+    P_neg = np.less_equal(M,1)*0.25*P*(M-1)*(M-1) * (2.0 + M) \
+                + np.greater(M,1)*0.5*P*(M-np.abs(M)) / M
         
-    #==============================================================
-    # Compute Phi=(F(W_{j+1}+F(W_j))/2-|A_{j+1/2}| (W_{j+1}-W_j)/2
-    #==============================================================
-    F = func_flux(q,gamma);
-    Phi=0.5*(F[:,0:nx-1]+F[:,1:nx])-0.5*Phi
+    P_half = P_plus[1,:] + P_neg[0:-1]
     
-    dF = (Phi[:,1:-1]-Phi[:,0:-2])
+    H = E+P/r
+    F_L = np.stack([r*a, r*a*u, r*a*H])[:,0:-1]
+    F_R = np.stack([r*a, r*a*u, r*a*H])[:,1:]
     
-    return (dF)
+    # AUSM Discretization
+    F_half = M_half * 0.5 * ( F_L + F_R ) - 0.5 * np.abs(M_half) * (F_R-F_L) + P_plus[0:-1] + P_neg[1:] # Equation 9 from AUSM Paper 
+
+    return F_half
 
 # Parameters
 CFL    = 0.50               # Courant Number
@@ -176,39 +147,6 @@ E0 = p0/((gamma-1.)*r0)+0.5*u0**2 # Total Energy density
 a0 = sqrt(gamma*p0/r0)            # Speed of sound
 q  = np.array([r0,r0*u0,r0*E0])   # Vector of conserved variables
 
-if (False):
-    fig = plt.subplots()
-    ax1 = plt.subplot(4, 1, 1)
-    #plt.title('Lax-Wendroff scheme')
-    plt.plot(x, r0, 'k-')
-    plt.ylabel('$rho$',fontsize=18)
-    plt.tick_params(axis='x',bottom=False,labelbottom=False)
-    plt.grid(True)
-    
-    ax2 = plt.subplot(4, 1, 2)
-    plt.plot(x, u0, 'r-')
-    plt.ylabel('$U$',fontsize=18)
-    plt.tick_params(axis='x',bottom=False,labelbottom=False)
-    plt.grid(True)
-
-    ax3 = plt.subplot(4, 1, 3)
-    plt.plot(x, p0, 'b-')
-    plt.ylabel('$P$',fontsize=18)
-    plt.tick_params(axis='x',bottom=False,labelbottom=False)
-    plt.grid(True)
-    
-    ax4 = plt.subplot(4, 1, 4)
-    plt.plot(x, E0, 'g-')
-    plt.ylabel('$E$',fontsize=18)
-    plt.grid(True)
-    plt.xlim(x_ini,x_fin)
-    plt.xlabel('x',fontsize=18)
-    plt.subplots_adjust(left=0.2)
-    plt.subplots_adjust(bottom=0.15)
-    plt.subplots_adjust(top=0.95)
-    
-    plt.show()
-
 # Solver loop
 t  = 0
 it = 0
@@ -216,9 +154,8 @@ a  = a0
 dt=CFL*dx/max(abs(u0)+a0)         # Using the system's largest eigenvalue
 
 while t < tEnd:
-
     q0 = q.copy();
-    dF = flux_ausm(q0,dx,gamma,a,nx);
+    dF = flux_ausm(q0,dx,gamma,a,nx)
     
     q[:,1:-2] = q0[:,1:-2]-dt/dx*dF;
     q[:,0]=q0[:,0]; q[:,-1]=q0[:,-1]; # Dirichlet BCs

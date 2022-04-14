@@ -1,9 +1,9 @@
 #import os, sys
 import numpy as np
-from numpy import *
+import json 
 import matplotlib.pyplot as plt
-
 from matplotlib import rc
+
 rc('font', family='serif')
 rc('lines', linewidth=1.5)
 rc('font', size=14)
@@ -40,16 +40,18 @@ rc('font', size=14)
 #
 ######################################################################
 
-def flux_ausm(q:np.ndarray,dx:float,gamma:float,a:float,nx:int):
+def flux_ausm(q:np.ndarray,dx:float,gamma:float,nx:int):
     """AUSM Flux Splitting Scheme
     
+    References:
         Liou, M. S., & Steffen Jr, C. J. (1993). A new flux splitting scheme. Journal of Computational physics, 107(1), 23-39.
+        https://github.com/PauloBarrosCorreia/AUSM/blob/master/ausm.f90 
 
     Args:
         q (np.ndarray): [3,nx] [rho, rhou, E]
         dx (float): _description_
-        gamma (float): _description_
-        a (float): _description_
+        gamma (float): ratio of specific heats 
+        a (float): Speed of sound
         nx (int): _description_
 
     Returns:
@@ -58,16 +60,16 @@ def flux_ausm(q:np.ndarray,dx:float,gamma:float,a:float,nx:int):
     # AUSM Mach Number 
     r = q[0,:]
     u = q[1,:]/r
-    E=q[2,:]/r
-
-    M = u/a 
+    E = q[2,:]/r
     P=(gamma-1.)*r*(E-0.5*u**2)
+    a = np.sqrt(gamma*P/r)      
+    M = u/a                     # Computes mach number at each location on the grid 
 
-    M_plus = np.less_equal(M,1)*0.25*(M+1)**2 + \
-                np.greater(M,1) * 0.5*(M+abs(M)) # M+
+    M_plus = np.less_equal(np.abs(M),1)*0.25*(M+1)**2 + \
+                np.greater(np.abs(M),1) * 0.5*(M+abs(M)) # M+, np.less_than/np.greater produces a boolean array [0,0,0,1,1,1] etc 
 
-    M_neg = np.less_equal(M,1)*(-0.25*(M-1)**2) + \
-                np.greater(M,1)*0.5*(M-abs(M)) # M- 
+    M_neg = np.less_equal(np.abs(M),1)*(-0.25*(M-1)**2) + \
+                np.greater(np.abs(M),1)*0.5*(M-abs(M)) # M- 
     
     M_half = M_plus[1:] + M_neg[0:-1]  # (M+ index 1 to end) + (M- index 0 to end-1)
 
@@ -79,7 +81,7 @@ def flux_ausm(q:np.ndarray,dx:float,gamma:float,a:float,nx:int):
     P_neg = np.less_equal(M,1)*0.25*P*(M-1)*(M-1) * (2.0 + M) \
                 + np.greater(M,1)*0.5*P*(M-np.abs(M)) / M
         
-    P_half = P_plus[1,:] + P_neg[0:-1]
+    # P_half = P_plus[1,:] + P_neg[0:-1]
     
     H = E+P/r
     F_L = np.stack([r*a, r*a*u, r*a*H])[:,0:-1]
@@ -88,7 +90,15 @@ def flux_ausm(q:np.ndarray,dx:float,gamma:float,a:float,nx:int):
     # AUSM Discretization
     F_half = M_half * 0.5 * ( F_L + F_R ) - 0.5 * np.abs(M_half) * (F_R-F_L) + P_plus[0:-1] + P_neg[1:] # Equation 9 from AUSM Paper 
 
-    return F_half
+    return F_half 
+
+def update(q:np.ndarray,f:np.ndarray):
+    """Updates the solution
+
+    Args:
+        q (np.ndarray): _description_
+        f (np.ndarray): _description_
+    """
 
 # Parameters
 CFL    = 0.50               # Courant Number
@@ -97,14 +107,17 @@ ncells = 400                # Number of cells
 x_ini =0.; x_fin = 1.       # Limits of computational domain
 dx = (x_fin-x_ini)/ncells   # Step size
 nx = ncells+1               # Number of points
-x = np.linspace(x_ini+dx/2.,x_fin,nx) # Mesh
+nghost_cells = 10           # Number of ghost cells on each boundary
+x = np.linspace(x_ini,x_fin,nx) # Mesh
 
 # Build IC
-r0 = zeros(nx)
-u0 = zeros(nx)
-p0 = zeros(nx)
+r0 = np.zeros(nx)
+u0 = np.zeros(nx)
+p0 = np.zeros(nx)
 halfcells = int(ncells/2)
-
+with open('settings.json','r') as f:
+    settings = json.load(f)
+    
 IC = 1 # 6 IC cases are available
 if IC == 1:
     print ("Configuration 1, Sod's Problem")

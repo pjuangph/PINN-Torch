@@ -247,7 +247,7 @@ while t < tEnd:
     q0 = q.copy();
     dF = flux_roe(q0,dx,gamma,a,nx);
     
-    q[:,1:-2] = q0[:,1:-2]-dt/dx*dF;
+    q[:,1:-2] = q0[:,1:-2]-dt/dx*dF; # Euler timestep 
     q[:,0]=q0[:,0]; q[:,-1]=q0[:,-1]; # Dirichlet BCs
     
     # Compute primary variables

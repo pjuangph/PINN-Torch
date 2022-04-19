@@ -32,6 +32,6 @@ All of these examples are presented on a 2D Domain of x and y. The importance of
 
 2. [Shocktube not nangs](https://www.researchgate.net/profile/Alexandros-Papados/publication/350239546_Solving_Hydrodynamic_Shock-Tube_Problems_Using_Weighted_Physics-Informed_Neural_Networks_with_Domain_Extension/links/6130062f0360302a0073573c/Solving-Hydrodynamic-Shock-Tube-Problems-Using-Weighted-Physics-Informed-Neural-Networks-with-Domain-Extension.pdf)  Link to the code [Alex Papados](https://github.com/alexpapados/Physics-Informed-Deep-Learning-Solid-and-Fluid-Mechanics)
 
-# Not so useful reference
+# This is not a helpful reference
 1. [Physics based deep learning](https://github.com/pjuangph/PINN-Torch/blob/main/references/physics%20based%20deep%20learning.pdf) These guys have a website designed to make you click. They show different examples of way to solve a PDE but their website isn't as current as the research. 
 

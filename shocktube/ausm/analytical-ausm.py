@@ -26,7 +26,7 @@ def flux_ausm(q:np.ndarray,gamma:float):
     # AUSM Mach Number 
     r = q[0,:]
     u = q[1,:]/r
-    E = q[2,:]/r
+    E = q[2,:]/r  # E = T*Cv # Kenji says maybe use Temperature instead of Energy then convert to Energy 
     P=(gamma-1.)*r*(E-0.5*u**2)
     a = np.sqrt(gamma*P/r)      
     M = u/a                     # Computes mach number at each location on the grid 
@@ -148,7 +148,7 @@ while t < tEnd:
     F_half = flux_ausm(q0,gamma) # Calculates the flux at every 1/2 point
 
     q = update_euler(q0,F_half,dx,dt,nghost_cells)
-    q = update_RK4(q,dt,dx,nghost_cells,gamma)
+    # q = update_RK4(q,dt,dx,nghost_cells,gamma)
     # Compute primary variables
     rho=q[0,:]
     u=q[1,:]/rho
@@ -165,7 +165,7 @@ while t < tEnd:
     t=t+dt; it=it+1
       
     # Plot solution
-    if it%2 == 0:
+    if it%1 == 0:
         print (it)
         fig,axes = plt.subplots(nrows=4, ncols=1)
         plt.subplot(4, 1, 1)

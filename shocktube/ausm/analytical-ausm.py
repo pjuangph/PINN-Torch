@@ -2,6 +2,7 @@ import os
 import numpy as np
 import json 
 import matplotlib.pyplot as plt
+from ausm import flux_ausm
 from matplotlib import rc
 from pathlib import Path
 rc('font', family='serif')
@@ -114,8 +115,8 @@ while t < tEnd:
     q0 = q.copy()
     F_half = flux_ausm(q0,gamma) # Calculates the flux at every 1/2 point
 
-    # q = update_euler(q0,F_half,dx,dt,nghost_cells)
-    q = update_RK4(q,dt,dx,nghost_cells,gamma)
+    q = update_euler(q0,F_half,dx,dt,nghost_cells)
+    # q = update_RK4(q,dt,dx,nghost_cells,gamma)
     # Compute primary variables
     rho=q[0,:]
     u=q[1,:]/rho
@@ -132,7 +133,7 @@ while t < tEnd:
     t=t+dt; it=it+1
       
     # Plot solution
-    if it%2 == 0:
+    if it%1 == 0:
         print (it)
         fig,axes = plt.subplots(nrows=4, ncols=1)
         plt.subplot(4, 1, 1)

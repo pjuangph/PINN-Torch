@@ -33,8 +33,8 @@ def flux_ausm(q:np.ndarray,gamma:float):
             _type_: _description_
         """
         if np.abs(M) <= 1:
-            M_plus = 0.25*(M+1)
-            M_minus = -0.25*(M-1)
+            M_plus = 0.25*(M+1)**2
+            M_minus = -0.25*(M-1)**2
         else:
             M_plus = 0.5*(M+np.abs(M))
             M_minus = 0.5*(M-np.abs(M))
@@ -63,34 +63,38 @@ def flux_ausm(q:np.ndarray,gamma:float):
             M (float): Mach
         """
         if (np.abs(M)<=1):
-            P_plus = 0.5*P * (1+M)
-            P_minus = 0.5*P * (1-M) 
+            P_plus = 0.5*P*(1+M)
+            P_minus = 0.5*P*(1-M) 
         else:
-            P_plus = 0.5*P * (M+np.abs(M))/M
-            P_minus = 0.5*P * (M-np.abs(M))/M
+            P_plus = 0.5*P*(M + np.abs(M)) / M
+            P_minus = 0.5*P*(M - np.abs(M)) / M
         return P_plus, P_minus
     
     H = E+P/r
-    F_half = np.zeros((3,q.shape[1]-2)) # rho*u, rho*u*u+P, rho*u*H
+    F_half = np.zeros((3,q.shape[1]-1)) # rho*u, rho*u*u+P, rho*u*H
     F_L = np.zeros((3,))
     F_R = np.zeros((3,))
-    for i in range(1,q.shape[1]-1):
-        ML_plus,_ = M_plus_minus(M[i-1])
+    P_L = np.zeros((3,))
+    P_R = np.zeros((3,))
+    for i in range(q.shape[1]-1):
+        ML_plus,_ = M_plus_minus(M[i])
         _,MR_minus = M_plus_minus(M[i+1])
         M_half = ML_plus + MR_minus 
         
-        PL_plus,_ = P_plus_minus1(P[i-1],M[i-1])
+        PL_plus,_ = P_plus_minus1(P[i],M[i])
         _,PR_minus = P_plus_minus1(P[i+1],M[i+1])
-        
-        F_L[0] = r[i-1] * a[i-1]
-        F_L[1] = r[i-1]*a[i-1]*u[i-1] 
-        F_L[2] = r[i-1]*a[i-1]*H[i-1]
+        P_L[1] = PL_plus
+        P_R[1] = PR_minus
+
+        F_L[0] = r[i] * a[i]
+        F_L[1] = r[i]*a[i]*u[i] 
+        F_L[2] = r[i]*a[i]*H[i]
 
         F_R[0] = r[i+1] * a[i+1]
         F_R[1] = r[i+1]*a[i+1]*u[i+1] 
         F_R[2] = r[i+1]*a[i+1]*H[i+1]
         delta = F_R - F_L
-        F_half[:,i-1] = M_half * 0.5*(F_L + F_R) - 0.5*np.abs(M_half)*delta+ (PL_plus - PR_minus)
+        F_half[:,i] = M_half * 0.5*(F_L + F_R) - 0.5*np.abs(M_half)* delta + (P_L + P_R)
     
     return F_half
 

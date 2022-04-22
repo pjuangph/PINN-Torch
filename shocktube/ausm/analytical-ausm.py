@@ -25,8 +25,7 @@ def update_euler(q:np.ndarray,F:np.ndarray,dx:float,dt:float,ng:int) -> np.ndarr
         np.ndarray: qnew, updated q vector 
     """
     ncells = q.shape[1]
-    for i in range(1,ng,ncells-1):
-
+    for i in range(ng,ncells-2):
         q[:,i] = q[:,i] - dt/dx * (F[:,i]-F[:,i-1]) # dx already factored into the differentiation, use forward difference
 
     q[:,0] = q[:,1]     # Dirichlet BCs
@@ -134,7 +133,7 @@ while t < tEnd:
     t=t+dt; it=it+1
       
     # Plot solution
-    if it%1 == 0:
+    if it%2 == 0:
         print (it)
         fig,axes = plt.subplots(nrows=4, ncols=1)
         plt.subplot(4, 1, 1)

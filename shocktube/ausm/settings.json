@@ -6,7 +6,7 @@
         {
             "id":1,
             "name":"Sod_Problem",
-            "CFL":0.1,
+            "CFL":0.5,
             "gamma":1.4,
             "tmax":0.2,
             "left":{

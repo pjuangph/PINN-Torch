@@ -25,7 +25,8 @@ def update_euler(q:np.ndarray,F:np.ndarray,dx:float,dt:float,ng:int) -> np.ndarr
         np.ndarray: qnew, updated q vector 
     """
     ncells = q.shape[1]
-    for i in range(ng,ncells-1):
+    for i in range(1,ng,ncells-1):
+
         q[:,i] = q[:,i] - dt/dx * (F[:,i]-F[:,i-1]) # dx already factored into the differentiation, use forward difference
 
     q[:,0] = q[:,1]     # Dirichlet BCs
